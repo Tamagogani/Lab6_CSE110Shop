@@ -1,4 +1,5 @@
 // product-item.js
+var localStorage = window.localStorage;
 
 class ProductItem extends HTMLElement {
   // TODO
@@ -40,7 +41,10 @@ class ProductItem extends HTMLElement {
     // set button attributes
     button.setAttribute('onclick', 'alert(\'Added to Cart!\')');
     button.innerHTML = 'Add to Cart';
-    button.addEventListener('click', update_button);
+    button.addEventListener('click', update_button(id));
+    if(state) {
+      button.innerHTML = "Remove from Cart";
+    }
 
     // insert substructures to wrapper
     item.appendChild(img);
@@ -59,9 +63,29 @@ class ProductItem extends HTMLElement {
   }
 
 }
-function update_button() {
-  console.log("button pressed");
-  this.innerHTML = "joe mama";
+function update_button(id) {
+  let lambda = function () {
+    // get product state
+    let state_mem = JSON.parse(localStorage.getItem("state_mem"));
+    let state = state_mem[id];
+
+    // if true, item is in cart
+    if(state) {
+      this.innerHTML = "Add to Cart";
+      document.getElementById("cart-count").innerHTML--;
+      state_mem[id] = false;
+    }
+    else
+    {
+      this.innerHTML = "Remove from Cart";
+      document.getElementById("cart-count").innerHTML++;
+      state_mem[id] = true;
+    }
+
+    // update persistent memory
+    localStorage.setItem("state_mem", JSON.stringify(state_mem));
+  }
+  return lambda;
 }
 
 
